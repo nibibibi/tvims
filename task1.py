@@ -1,34 +1,70 @@
+# Прочитать выборку из файла
 values = []
 with open("input1.txt", "r") as input_file:
     lines = input_file.readlines()
     for line in lines:
         values.extend([float(a) for a in line.split()])
-print(values, '\n')
+n = len(values)
+
+# Вариационный ряд
 values.sort()
-print(values, '\n')
+print("Вариационный ряд: \n", values, '\n')
+
+# Частота каждого уникального значения в выборке 
 m = {} 
 for value in values:
     if value not in m:
         m[value] = 1
     else:
         m[value] = m[value] + 1
-print(m, '\n')
+print("Частота каждого значения: \n", m, '\n')
+
+# p для каждого значения
 p = []
 for key in m:
-    p.append(m[key]/100)
-print(p, '\n')
+    p.append(m[key]/n)
+print("p:", p, '\n')
+
+# Fi для xi
 F = []
 for i, a in enumerate(p):
     if i == 0:
         F.append(a)
     else:
         F.append(round(F[i-1] + a, 2))
-print(F, '\n')
+print("Fi:\n", F, '\n')
 
 import matplotlib.pyplot as plt
-
+# График Fi
 plt.plot([key for key in m], F)
 plt.ylabel("F")
 plt.xlabel("x")
-plt.show()
+# plt.show()
 
+import math
+# Число интервалов
+M = round(math.sqrt(n))
+# Длина интервала
+h = (values[-1] - values[0]) / M
+print("h = ", h, '\n')
+# Левые границы интервалов
+Ai = [round(values[0] + h*i, 2) for i in range(M)]
+print("Ai: ", Ai)
+# Правые границы интервалов
+Bi = [round(values[0] + h*(i+1), 2) for i in range(M)]
+print("Bi: ", Bi)
+# Количество точек  на интервалах
+mi = [0 for _ in range(M)]
+mi[0] = 1
+mi[-1] = 1
+for i, a in enumerate(mi):
+	for value in values:
+		if value > Ai[i] and value < Bi[i]:
+			mi[i] += 1
+		elif value == Bi[i] and i != M-1:
+			mi[i] += 0.5
+			mi[i+1] += 0.5
+print("mi: ", mi)
+# Статистическая плотность интервалов
+fi = [round(a/(h*n), 4) for a in mi]
+print(fi)
